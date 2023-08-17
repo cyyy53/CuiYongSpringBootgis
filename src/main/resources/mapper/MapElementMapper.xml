@@ -1,0 +1,25 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.itcy.postgresql.mapper.MapElementMapper">
+    <resultMap id="MapElementMap" type="com.itcy.postgresql.model.MapElement">
+        <id property="id" column="id"/>
+        <result property="name" javaType="String" jdbcType="VARCHAR" column="name"/>
+        <result property="latitude" javaType="double" jdbcType="REAL" column="latitude"/>
+        <result property="longitude" javaType="double" jdbcType="REAL" column="longitude"/>
+        <result property="geoStr" javaType="String" jdbcType="VARCHAR" column="element_location"/>
+    </resultMap>
+    <insert id="addMapElement" parameterType="com.itcy.postgresql.model.MapElement" useGeneratedKeys="true" keyProperty="id">
+        <selectKey keyProperty="id" resultType="Long" order="BEFORE">
+            SELECT nextval('map_elements_id_seq'::regclass)
+        </selectKey>
+        insert into map_elements(name, longitude, latitude, element_location)
+        values (#{name}, #{longitude}, #{latitude}, ST_GeomFromText(#{geoStr}, 4326))
+    </insert>
+    <select id="findById" parameterType="Long" resultMap="MapElementMap">
+        SELECT id, name, longitude, latitude,
+               ST_AsGeoJson(element_location) as element_location
+
+        FROM map_elements
+        where id = #{id}
+    </select>
+
+</mapper>

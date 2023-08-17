@@ -1,0 +1,79 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.itcy.postgresql.mapper.DemoMapper">
+
+
+    <!--查询全部-->
+    <select id="findAll" resultType="com.itcy.postgresql.model.China">
+        SELECT *, ST_AsGeoJson(geom) as geom
+        FROM china
+    </select>
+
+    <select id="checkIntersect" resultType="java.lang.Boolean">
+        SELECT ST_Intersects(china.geom, ST_GeomFromText(#{geometry})) AS is_intersected
+        FROM china
+        WHERE china.id = #{id}
+    </select>
+
+    <!--    传入geometry查询数据库-->
+    <select id="getByGeom" resultType="com.itcy.postgresql.model.Demo">
+        SELECT *
+        FROM demo
+        WHERE ST_Intersects(geom, ST_GeomFromEWKB(E '\\x${geome}'));
+    </select>
+
+    <!--传入geojson查询数据库-->
+    <select id="getByGeoJson" resultType="com.itcy.postgresql.model.Demo">
+        SELECT *
+        FROM demo
+        WHERE ST_Intersects(geom, ST_GeomFromGeoJSON('${geoJson}'));
+    </select>
+    <!--传入geometry查询数据库,返回与该数据相交每一块的数据-->
+    <select id="getIntersect" resultType="com.itcy.postgresql.vo.IntersectVO">
+        SELECT ST_Intersection(ST_GeomFromGeoJSON('${geoJson}')
+                   , geom) AS intersection_geom,
+               name
+        FROM demo
+        WHERE ST_Intersects(ST_GeomFromGeoJSON('${geoJson}')
+                  , geom);
+
+
+    </select>
+    <select id="getFieldProperty" resultType="java.lang.Object">
+        SELECT *
+        FROM ${tableName}
+        WHERE ${field} = '${value}'
+    </select>
+    <select id="getArea" resultType="com.itcy.postgresql.vo.DemoArea">
+        SELECT *, ST_Area(ST_Transform(geom, 4528)) as area
+        FROM demo
+        where name = '${name}';
+    </select>
+
+    <insert id="insertGeoJson" useGeneratedKeys="true" keyColumn="id" keyProperty="id">
+        insert into ${tableName}(geom)
+        values (ST_GeomFromGeoJSON('${geoJson}'));
+    </insert>
+
+    <select id="getIntersectArea" resultType="com.itcy.postgresql.vo.DemoArea">
+
+        SELECT *,
+               ST_Area(ST_Transform(ST_Intersection(ST_GeomFromGeoJSON('${geoJson}'), geom), 4528)) as area
+
+        FROM demo
+        WHERE ST_Intersects(ST_GeomFromGeoJSON('${geoJson}')
+                  , geom);
+
+    </select>
+    <select id="get3DArea" resultType="com.itcy.postgresql.vo.DemoArea">
+
+
+        SELECT *,
+        ST_Area(ST_Transform(geom, 4326)::geography) AS area3D
+        FROM demo
+        WHERE name = '${name}';
+    </select>
+
+
+</mapper>
+
+

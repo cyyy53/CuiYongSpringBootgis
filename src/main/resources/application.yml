@@ -1,0 +1,25 @@
+server:
+  port: 8080
+spring:
+  application:
+    name: reggie_take_out
+  datasource:
+    druid:
+      driver-class-name: org.postgresql.Driver
+      url: jdbc:postgresql://localhost:5432/postgis_threethree_sample?currentSchema=dimall_ticker,public
+      username: postgres
+      password: root
+
+  jpa:
+    show-sql: true # 显示sql查询
+    hibernate:
+      ddl-auto: update #如果不存在，就新建，如果存在只更新
+
+mybatis-plus:
+  configuration:
+    #在映射实体或者属性时，将数据库中表名和字段名中的下划线去掉，按照驼峰命名法映射
+    map-underscore-to-camel-case: true
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+  global-config:
+    db-config:
+      id-type: auto
