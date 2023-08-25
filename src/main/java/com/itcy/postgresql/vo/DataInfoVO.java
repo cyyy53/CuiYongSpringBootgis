@@ -1,6 +1,6 @@
 package com.itcy.postgresql.vo;
 
-import com.bedatadriven.jackson.datatype.jts.GeoJson;
+
 import lombok.Data;
 
 /**

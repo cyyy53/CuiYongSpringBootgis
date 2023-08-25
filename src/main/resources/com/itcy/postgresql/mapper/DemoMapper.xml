@@ -2,23 +2,11 @@
 <mapper namespace="com.itcy.postgresql.mapper.DemoMapper">
 
 
-    <!--查询全部-->
-    <select id="findAll" resultType="com.itcy.postgresql.model.China">
-        SELECT *, ST_AsGeoJson(geom) as geom
-        FROM china
-    </select>
-
-    <select id="checkIntersect" resultType="java.lang.Boolean">
-        SELECT ST_Intersects(china.geom, ST_GeomFromText(#{geometry})) AS is_intersected
-        FROM china
-        WHERE china.id = #{id}
-    </select>
-
-    <!--    传入geometry查询数据库-->
+    <!--    传入geometry查询相交数据库-->
     <select id="getByGeom" resultType="com.itcy.postgresql.model.Demo">
         SELECT *
         FROM demo
-        WHERE ST_Intersects(geom, ST_GeomFromEWKB(E '\\x${geome}'));
+        WHERE ST_Intersects(geom, ST_GeomFromEWKB(E'\\x${geom}'));
     </select>
 
     <!--传入geojson查询数据库-->
@@ -27,7 +15,7 @@
         FROM demo
         WHERE ST_Intersects(geom, ST_GeomFromGeoJSON('${geoJson}'));
     </select>
-    <!--传入geometry查询数据库,返回与该数据相交每一块的数据-->
+    <!--传入geoJson查询数据库,返回与该数据相交每一块的数据-->
     <select id="getIntersect" resultType="com.itcy.postgresql.vo.IntersectVO">
         SELECT ST_Intersection(ST_GeomFromGeoJSON('${geoJson}')
                    , geom) AS intersection_geom,
@@ -38,8 +26,9 @@
 
 
     </select>
-    <select id="getFieldProperty" resultType="java.lang.Object">
+    <select id="getFieldProperty" resultType="com.itcy.postgresql.model.Demo">
         SELECT *
+
         FROM ${tableName}
         WHERE ${field} = '${value}'
     </select>
@@ -66,14 +55,44 @@
     </select>
     <select id="get3DArea" resultType="com.itcy.postgresql.vo.DemoArea">
 
-
         SELECT *,
-        ST_Area(ST_Transform(geom, 4326)::geography) AS area3D
+               ST_Area(ST_Transform(geom, 4326)::geography) as area
         FROM demo
         WHERE name = '${name}';
     </select>
 
+    <select id="findGeoJsonById" resultType="com.itcy.postgresql.model.Demo">
+        select st_asgeojson(geom) as geomJson
+        from demo
+        where id_0 = #{id}
 
+    </select>
+    <select id="getST_AsGeoJSON" resultType="java.lang.Object">
+        select ST_AsGeoJSON(geom)
+        FROM demo
+        where name = '${name}';
+    </select>
+    <select id="getIntersectsZIP" resultType="com.itcy.postgresql.vo.IntersectVO">
+        select name,ST_AsText(ST_Intersection(ST_GeomFromGeoJSON('${geoJson}'), geom)) as intersectionGeom
+        from ${tableName}
+        where  ST_Intersects(ST_GeomFromGeoJSON('${geoJson}'),geom) and
+        ${field} in
+        <foreach collection="values" item="value" separator="," open="(" close=")">
+            '${value}'
+        </foreach>;
+    </select>
+  <!--  <select id="getAllZIP" resultType="com.itcy.postgresql.vo.IntersectVO">
+        select geom
+        as intersectionGeom
+        from ${tableName}
+        where   ${field} in
+        <foreach collection="values" item="value" separator="," open="(" close=")">
+            '${value}'
+        </foreach>;
+    </select>-->
+
+    <!--/* and
+    ST_Intersects(ST_GeomFromGeoJSON('${geoJson}' , geom))*/-->
 </mapper>
 
 

@@ -1,29 +1,26 @@
 package com.itcy.postgresql.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.baomidou.mybatisplus.extension.api.R;
-import com.itcy.postgresql.common.Result;
-import com.itcy.postgresql.model.China;
+import com.itcy.postgresql.dto.IntersectsZIPDTO;
 import com.itcy.postgresql.model.Demo;
 import com.itcy.postgresql.vo.DataInfoVO;
 import com.itcy.postgresql.vo.DemoArea;
 import com.itcy.postgresql.vo.IntersectVO;
 import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Param;
-import org.apache.ibatis.annotations.Select;
-import org.locationtech.jts.geom.Geometry;
 
 import java.util.List;
 
+/**
+ * @author 176
+ */
 @Mapper
-public interface DemoMapper extends BaseMapper<China> {
-    @Select("SELECT * FROM china WHERE geometry = #{geometry}")
-    List<China> findIntersectingEntities(@Param("geometry") Geometry geometry);
+public interface DemoMapper extends BaseMapper<Demo> {
 
 
-    List<China> findAll();
 
-    boolean checkIntersect(Long id1, Long id2);
+    Demo findGeoJsonById(Integer id,String name);
+
+    Object getST_AsGeoJSON(String name);
 
     List<Demo> getByGeom(String geom);
 
@@ -33,11 +30,15 @@ public interface DemoMapper extends BaseMapper<China> {
 
     Integer insertGeoJson(DataInfoVO dataInfoVO);
 
-    Object getFieldProperty( String tableName,String field, String value);
+    Demo getFieldProperty( String tableName,String field, String value);
 
     DemoArea getArea(String name);
 
     List<DemoArea> getIntersectArea(String geoJson);
 
     DemoArea get3DArea(String name);
+
+    List<IntersectVO > getIntersectsZIP(IntersectsZIPDTO zipDto);
+
+    /*List<IntersectVO> getAllZIP(IntersectsZIPDTO zipDto);*/
 }
